@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import axios from "axios";
 import * as z from "zod";
+import { toast } from "react-hot-toast";
+
 import { useStoreModal } from "@/hooks/use-store-modal";
 import { Modal } from "@/components/ui/modal";
 import { useForm } from "react-hook-form";
@@ -23,6 +27,8 @@ const formSchema = z.object({
 
 export const StoreModal = () => {
   const storeModal = useStoreModal();
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,8 +37,15 @@ export const StoreModal = () => {
   });
 
   const onSumbit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    //ไว้สร้างร้าน
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/stores", values);
+      toast.success("Store created.");
+    } catch (error) {
+      toast.error("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,17 +66,27 @@ export const StoreModal = () => {
                   <FormItem>
                     <FormLabel>ใส่ชื่อร้าน</FormLabel>
                     <FormControl>
-                      <Input placeholder="ชื่อร้าน" {...field} />
+                      <Input
+                        disabled={loading}
+                        placeholder="ชื่อร้าน"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <div className="pt-6 space-x-2 flex items-center justify-end w-full">
-                <Button variant="outline" onClick={storeModal.onClose}>
+                <Button
+                  disabled={loading}
+                  variant="outline"
+                  onClick={storeModal.onClose}
+                >
                   ยกเลิก
                 </Button>
-                <Button type="submit">ไปหน้าถัดไป</Button>
+                <Button disabled={loading} type="submit">
+                  ไปหน้าถัดไป
+                </Button>
               </div>
             </form>
           </Form>
