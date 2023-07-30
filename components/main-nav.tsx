@@ -14,17 +14,17 @@ export function MainNav({
   const routes = [
     {
       href: `/${params.storeId}/`,
-      label: "Home",
+      label: "หน้าแรก",
       active: pathname === `/${params.storeId}/`,
     },
     {
       href: `/${params.storeId}/billboards`,
-      label: "Billboards",
+      label: "พื้นหลัง",
       active: pathname === `/${params.storeId}/billboards`,
     },
     {
       href: `/${params.storeId}/categories`,
-      label: "Categories",
+      label: "หมวดหมู่สินค้า",
       active: pathname === `/${params.storeId}/categories`,
     },
     {
@@ -38,8 +38,13 @@ export function MainNav({
       active: pathname === `/${params.storeId}/products`,
     },
     {
+      href: `/${params.storeId}/orders`,
+      label: "ออเดอร์",
+      active: pathname === `/${params.storeId}/orders`,
+    },
+    {
       href: `/${params.storeId}/settings`,
-      label: "Settings",
+      label: "ตั้งค่า",
       active: pathname === `/${params.storeId}/settings`,
     },
   ];
