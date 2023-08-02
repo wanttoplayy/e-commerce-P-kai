@@ -21,7 +21,7 @@ export default async function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <link rel="icon" href="/favicon.ico" sizes="any" />
+      <link rel="icon" href="/app/favicon.ico" sizes="any" />
       <html lang="en">
         <body className={inter.className}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
