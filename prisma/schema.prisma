@@ -73,6 +73,7 @@ model Product {
   category   Category    @relation("CategoryToProduct", fields: [categoryId], references: [id])
   name       String
   price      Decimal
+  quantity   Int
   isFeatured Boolean     @default(false)
   isArchived Boolean     @default(false)
   sizeId     String // Foreign Key to Size
@@ -104,6 +105,7 @@ model Order {
   storeId    String
   store      Store       @relation("StoreToOrder", fields: [storeId], references: [id])
   orderItems OrderItem[]
+  quantity   Int
   isPaid     Boolean     @default(false)
   phone      String      @default("")
   address    String      @default("")

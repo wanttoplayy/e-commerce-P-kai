@@ -1,8 +1,11 @@
-import Stripe from "stripe";
 import { NextResponse } from "next/server";
-
-import { stripe } from "@/lib/stripe";
+import omise from "omise";
 import prismadb from "@/lib/prismadb";
+
+const omiseClient = omise({
+  publicKey: "pkey_test_5wn3p0xonb45egmuhrx",
+  secretKey: "skey_test_5wn3p0yui863l14zxhn",
+});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,21 +35,6 @@ export async function POST(
     },
   });
 
-  const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-
-  products.forEach((product) => {
-    line_items.push({
-      quantity: 1,
-      price_data: {
-        currency: "THB",
-        product_data: {
-          name: product.name,
-        },
-        unit_amount: product.price.toNumber() * 100,
-      },
-    });
-  });
-
   const order = await prismadb.order.create({
     data: {
       storeId: params.storeId,
@@ -63,24 +51,33 @@ export async function POST(
     },
   });
 
-  const session = await stripe.checkout.sessions.create({
-    line_items,
-    mode: "payment",
-    billing_address_collection: "required",
-    phone_number_collection: {
-      enabled: true,
-    },
-    success_url: `${process.env.FRONTEND_STORE_URL}/cart?success=1`,
-    cancel_url: `${process.env.FRONTEND_STORE_URL}/cart?canceled=1`,
-    metadata: {
-      orderId: order.id,
-    },
-  });
+  // Sum up the total order amount
+  const amount =
+    products.reduce((total, product) => total + product.price.toNumber(), 0) *
+    100;
 
-  return NextResponse.json(
-    { url: session.url },
+  // Create a charge
+  omiseClient.charges.create(
     {
-      headers: corsHeaders,
+      amount: amount.toString(), // Omise requires the amount to be a string and in the smallest currency unit (satang for THB)
+      currency: "THB",
+      description: "Order: " + order.id,
+      return_uri: `${process.env.FRONTEND_STORE_URL}/cart?success=1`,
+    },
+    function (err, resp) {
+      if (err) {
+        // Handle error
+        console.log(err);
+        return new NextResponse("Failed to create charge", { status: 500 });
+      }
+
+      // Return the authorize URI to the frontend
+      return NextResponse.json(
+        { url: resp.authorize_uri },
+        {
+          headers: corsHeaders,
+        }
+      );
     }
   );
 }
