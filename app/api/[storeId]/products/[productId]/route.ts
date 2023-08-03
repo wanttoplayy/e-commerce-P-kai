@@ -78,8 +78,16 @@ export async function PATCH(
 
     const body = await req.json();
 
-    const { name, price, categoryId, images, sizeId, isFeatured, isArchived } =
-      body;
+    const {
+      name,
+      price,
+      quantity,
+      categoryId,
+      images,
+      sizeId,
+      isFeatured,
+      isArchived,
+    } = body;
 
     if (!userId) {
       return new NextResponse("Unauthenticated", { status: 403 });
@@ -99,6 +107,9 @@ export async function PATCH(
 
     if (!price) {
       return new NextResponse("Price is required", { status: 400 });
+    }
+    if (!quantity) {
+      return new NextResponse("Quantity is required", { status: 400 });
     }
 
     if (!categoryId) {
